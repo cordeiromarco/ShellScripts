@@ -1,0 +1,425 @@
+TIPS Linux Oracle
+
+----------------------------------------
+
+Adduser and add to group wheel(sudo)
+
+#adduser %username% -G wheel
+
+------------------------------------------
+
+Enable SUDO
+
+#visudo 
+
+uncomment allow people in group wheel with password !
+
+
+------------------------------------------
+
+10.1. Configuring Proxy Server Access
+
+To enable all yum operations to use a proxy server, specify the proxy server details in /etc/yum.conf. 
+
+sudo vi /etc/yum.conf
+
+#Detran
+proxy=http://10.200.188.17:80/
+
+#montreal
+proxy=http://10.200.97.8:8080
+
+# The account details for yum connections
+proxy_username=yum-user
+proxy_password=qwerty
+
+------------------------------------------
+
+Configuring DHCP Settings
+
+vi /etc/sysconfig/network-scripts/ifcfg-xxx
+
+DEVICE=enp3s0
+ONBOOT=yes
+DHCP=yes
+
+Restart network
+
+--------------------------------------
+
+wget with proxy:
+
+create a file using vim like vi ~/.wgetrc
+
+and paste your proxy URL inside the file using as below.
+
+use_proxy = on
+http_proxy =  http://70.32.89.160:3128
+https_proxy =  http://70.32.89.160:3128
+ftp_proxy = http://70.32.89.160:3128
+
+-----------------------------------------------
+
+Linux Install Core Development Tools Automake, Gcc (C/C++), Perl, Python & Debuggers
+
+$ sudo yum groupinstall "Development Tools"
+
+---------------------------------------------------
+Disabling SELinux
+
+Configure SELINUX=disabled in the /etc/selinux/config file:
+
+vi /etc/selinux/config
+
+--------------------------------------------------
+
+
+
+VMware tools
+
+After RHEL 6 installation, to install Open VMware Tools, using root privileges, run the command:
+
+# wget https://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+
+# rpm -Uvh epel-release*rpm
+
+# yum install open-vm-tools
+
+--------------------------------------------------------------
+
+
+software collections 
+
+Here is how I got mine working on RHEL 6.8
+
+yum install scl-utils scl-utils-build
+
+cd /etc/pki/rpm-gpg
+wget http://linuxsoft.cern.ch/cern/scl/RPM-GPG-KEY-cern
+
+cd /etc/yum.repos.d
+wget http://linuxsoft.cern.ch/cern/scl/slc6-scl.repo
+
+yum install -y devtoolset-3-gcc-c++
+
+# switch to new gcc
+
+source /opt/rh/devtoolset-3/enable
+
+gcc -v
+
+# switch to new version (optional)
+
+scl enable devtoolset-3 bash
+
+Test the environment:
+
+$ gcc --version
+gcc (GCC) 4.8.2 20140120 (Red Hat 4.8.2-15)
+...
+
+$ g++ --version
+g++ (GCC) 4.8.2 20140120 (Red Hat 4.8.2-15)
+...
+
+$ gfortran --version
+GNU Fortran (GCC) 4.8.2 20140120 (Red Hat 4.8.2-15)
+...
+
+# docs:
+
+https://access.redhat.com/documentation/en-US/Red_Hat_Developer_Toolset/1/html-single/Software_Collections_Guide/#chap-Introducing_Software_Collections
+
+https://www.softwarecollections.org/en/scls/rhscl/devtoolset-3/
+
+Java JRE 1.8.2 instalation
+
+https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html
+
+sudo yum localinstall jre-8u161-linux-x64.rpm
+
+GLIBC 2.14
+
+You cannot update glibc on Centos 6 safely. However you can install 2.14 alongside 2.12 easily, then use it to compile projects etc. Here is how:
+
+mkdir ~/glibc_install; cd ~/glibc_install
+
+wget http://ftp.gnu.org/gnu/glibc/glibc-2.14.tar.gz
+
+tar zxvf glibc-2.14.tar.gz
+
+cd glibc-2.14
+
+mkdir build
+
+cd build
+
+../configure --prefix=/opt/glibc-2.14
+
+make -j4
+
+sudo make install
+
+#export LD_LIBRARY_PATH=/opt/glibc-2.14/lib
+
+
+
+-----------------------------------------------------------------------------------
+
+Java change 1.8 to 1.7
+
+[root@seap alternatives]# ll java
+
+lrwxrwxrwx. 1 root root 73 Nov 14 23:09 java -> /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.191.b12-1.el7_6.x86_64/jre/bin/java
+
+[root@seap alternatives]# ln -s /usr/lib/jvm/java-1.7.0-openjdk-1.7.0.191-2.6.15.4.0.1.el7_5.x86_64/jre/bin/java java
+
+
+-----------------------------------------------------------------
+
+NetworkManager is installed by default on Red Hat Enterprise Linux. 
+
+# yum install NetworkManager
+
+-----------------------------------------------------------------
+
+Searching for Packages with yum
+
+yum list tsclient
+
+yum search PalmPilot
+
+yum provides nmtui
+
+--------------------------------------------------------------
+
+SSh Disable Root Logins
+
+SSH server settings are stored in the /etc/ssh/sshd_config file. 
+To disable root logins, make sure you have the following entry:
+
+sudo vi /etc/ssh/sshd_config
+
+# Prevent root logins:
+
+LoginGraceTime 2m
+PermitRootLogin no
+#StrictMode yes
+MaxAuthTries 3
+MaxSessions 5
+
+# End Auth options
+
+and restart the sshd service:
+
+sudo systemctl restart sshd.service 
+
+If you need root access, login as a normal user and use the su command.
+
+--------------------------------------------------------------------------------
+
+To install Logwatch on CentOS / RHEL, run the following:
+
+https://www.digitalocean.com/community/tutorials/how-to-install-and-use-logwatch-log-analyzer-and-reporter-on-a-vps
+
+$ sudo yum install -y logwatch
+
+Setting The Common Configurations of Logwatch
+The default configuration file for Logwatch is located at:
+
+$ sudo vi /usr/share/logwatch/default.conf/logwatch.conf
+
+1. The e-mail address to which daily digest (reports) are sent:
+
+MailTo = root
+Replace root with your email address.
+
+Example: MailTo = sysadmin@mydomain.com
+
+2. The e-mail address from which these reports originate:
+
+MailFrom = Logwatch
+You might wish to replace Logwatch with your own again.
+
+Example: MailFrom = sysadmin@mydomain.com
+
+3. Setting the range for the reports:
+
+Range = yesterday
+You have options of receiving reports for All (all available since the beginning), Today (just today) or Yesterday (just yesterday).
+
+Example: Range = Today
+
+4. Setting the reports' detail:
+
+Detail = Low
+You can modify the reports' detail here. Options are: Low, Medium and High.
+
+Example: Detail = Medium
+
+5. Setting services (applications) to be analysed:
+
+By default, Logwatch covers a really wide range of services. If you would like to see a full list, you can query the contents of the file scripts/services located at /usr/share/logwatch/.
+
+Example: ls -l /usr/share/logwatch/scripts/services
+
+Service = All
+You can choose to receive reports for all services or some specific ones.
+
+For all services, keep the line as: Service = All
+
+Running Logwatch Manually
+
+$ logwatch --detail Low --mailto marco.cordeiro@montreal.com.br --service all --range today
+
+
+
+------------------------------------------------------------------------
+
+Change run-level 
+
+systemd uses 'targets' instead of runlevels. By default, there are two main targets:
+
+#
+# multi-user.target: analogous to runlevel 3
+# graphical.target: analogous to runlevel 5
+#
+# To view current default target, run:
+
+# systemctl get-default
+#
+# To set a default target, run:
+# systemctl set-default TARGET.target
+#
+
+# systemctl set-default multi-user.target
+
+---------------------------------------------------------------------------------
+
+Set date
+
+#date -s "21 NOV 2018 03:27:00"
+
+check
+
+#timedatectl status
+
+https://www.garron.me/en/linux/set-time-date-timezone-ntp-linux-shell-gnome-command-line.html
+
+-----------------------------------------------------------------------------------------------
+
+Journalctl
+
+https://www.digitalocean.com/community/tutorials/how-to-use-journalctl-to-view-and-manipulate-systemd-logs
+
+Clear journalctl
+
+#journalctl --vacuum-time=10d
+
+List journalctl service logs
+
+#journalctl -u nginx.service
+
+List journalctl like tail -f
+
+#journalctl -u tomcat.service -f
+
+You can specify the number of entries you'd like to see with a number after the -n:
+
+journalctl -n 20
+
+find specific string
+
+# journalctl -u tomcat.service | grep INFO
+
+-----------------------------------------------------------------------------------------------
+
+Ports in use or listen
+
+Option #1: lsof command The syntax is:
+
+$ sudo lsof -i -P -n
+
+$ sudo lsof -i -P -n | grep LISTEN
+
+Option #2: netstat command
+
+$ sudo netstat -tulpn
+
+$ sudo netstat -tulpn | grep LISTEN
+
+Option #3: nmap command The syntax is:
+
+$ sudo nmap -sT -O localhost
+
+A note about Windows users syntax :
+
+netstat -an
+
+netstat -bano | more
+
+netstat -bano | grep LISTENING
+
+-----------------------------------------------------------------------------------------------
+
+Add new disks to linux using LVM
+
+https://www.tecmint.com/add-new-disks-using-lvm-to-linux/
+
+-----------------------------------------------------------------------------------------
+
+How to check which process is using most memory
+
+check config
+
+# more /proc/meminfo
+
+https://www.techpaste.com/2012/06/analyse-output-procmeminfo-linux/
+
+When I check "free" in one of Prod server it showing 70% of memory is being used:
+
+# free -h
+
+This will show you top 10 process that using the most memory:
+
+# ps aux --sort=-%mem | awk 'NR<=10{print $0}'
+
+using top: when you opened top press m will short process based on memory usage. 
+
+or an interactive analysis, you can use htop, then hit function key F6 to choose the sort-order, 
+
+e.g. PERCENT_CPU (memory usage in percents), M_RESIDENT (resident memory size, the real memory that is used),
+
+M_SIZE (virtual memory size) or M_SHARE (size of shared memory). The first two are the relevant numbers.
+
+The green lines are threads. Hit (upper case) K and H to hide them.
+
+https://www.tecmint.com/install-htop-linux-process-monitoring-for-rhel-centos-fedora/
+
+try install epel via yum !
+
+# yum install epel-release-7-11 if works
+
+# yum install htop
+
+otherwise ....
+
+-------------- For RHEL/CentOS 7 --------------
+# wget dl.fedoraproject.org/pub/epel/7/x86_64/Packages/e/epel-release-7-11.noarch.rpm
+# rpm -ihv epel-release-7-11.noarch.rpm 
+
+-------------- For RHEL/CentOS 6 --------------
+# wget http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+# rpm -ihv epel-release-6-8.noarch.rpm
+
+Clear Cache script
+
+https://www.techpaste.com/2018/02/shell-script-linux-clear-cache/
+
+-----------------------------------------------------------------------------------------
+
+
+-----------------------------------------------------------------------------------------
+
+
+
